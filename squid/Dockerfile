@@ -1,8 +1,7 @@
 FROM archlinux/base
-RUN pacman -Sy --noconfirm squid catatonit
+RUN pacman -Sy --noconfirm squid
 RUN rm -f /etc/squid/squid.conf
 COPY start.sh /start.sh
 # USER proxy
-ENTRYPOINT ["catatonit"]
-CMD ["/start.sh"]
+ENTRYPOINT ["/start.sh"]
 RUN yes | pacman -Scc
