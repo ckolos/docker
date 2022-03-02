@@ -1,0 +1,16 @@
+worker_processes  4;
+events {
+    worker_connections  1024;
+}
+
+http {
+    include       mime.types;
+    types_hash_max_size 4096;
+    server_names_hash_bucket_size 128;
+    default_type  application/octet-stream;
+    sendfile        on;
+    tcp_nopush     on;
+    keepalive_timeout  65;
+    charset en_US.UTF-8;
+    include /etc/nginx/conf.d/*.conf;
+}
