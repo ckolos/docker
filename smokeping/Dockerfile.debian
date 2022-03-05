@@ -16,6 +16,8 @@ RUN \
 	dnsutils \
 	fonts-noto-cjk \
 	less \
+	libidn11 \
+	libpopt0 \
 	openssh-client \
 	procps \
 	ssmtp \
@@ -27,6 +29,10 @@ RUN \
 	vim-tiny
 
 COPY root/ /
+
+RUN dpkg -i /tmp/echoping_6.0.2-10_amd64.deb && \
+    rm /tmp/echoping_6.0.2-10_amd64.deb
+
 RUN \
   echo "**** give setuid access to traceroute & tcptraceroute ****" && \
   chmod a+s /usr/bin/traceroute && \
@@ -38,6 +44,7 @@ RUN \
   rm /etc/nginx/sites-enabled/default && \
   rm /etc/nginx/sites-available/default && \
   rm -rf /etc/supervisor && \
+  ln -s  /var/cache/smokeping /usr/share/smokeping/www/cache && \
   apt-get clean
 
     # mkdir /etc/nginx/ssl && \
