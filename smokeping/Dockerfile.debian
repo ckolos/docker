@@ -1,9 +1,6 @@
 FROM debian:bullseye
 RUN \
-  echo en_US.UTF-8 UTF-8 > /etc/locale.gen && \
-  mkdir -p /defaults/
-
-COPY tcpping /defaults/
+  echo en_US.UTF-8 UTF-8 > /etc/locale.gen
 
 RUN \
   echo "**** install packages ****" && \
@@ -18,14 +15,18 @@ RUN \
 	bc \
 	dnsutils \
 	fonts-noto-cjk \
+	less \
 	openssh-client \
+	procps \
 	ssmtp \
 	sudo \
 	tcptraceroute \
 	fonts-dejavu-core \
 	fonts-dejavu-extra \
-	traceroute
+	traceroute \
+	vim-tiny
 
+COPY root/ /
 RUN \
   echo "**** give setuid access to traceroute & tcptraceroute ****" && \
   chmod a+s /usr/bin/traceroute && \
@@ -34,14 +35,13 @@ RUN \
   sed -i 's#src="/cropper/#/src="cropper/#' /etc/smokeping/basepage.html && \
   echo "**** install tcping script ****" && \
   install -m755 -D /defaults/tcpping /usr/bin/ && \
-  rm /etc/nginx/sites-enabled/default
-
-COPY uwsgi_smokeping.ini /etc/uwsgi/apps-enabled/smokeping.ini
-COPY nginx_smokeping.ckolos.net /etc/nginx/sites-enabled/smokeping.ckolos.net
-RUN \
+  rm /etc/nginx/sites-enabled/default && \
+  rm /etc/nginx/sites-available/default && \
+  rm -rf /etc/supervisor && \
   apt-get clean
+
     # mkdir /etc/nginx/ssl && \
     # openssl req -subj "/commonName=smokeping.ckolos.net/" -x509 -nodes -days 730 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt && \
-CMD ["/usr/bin/supervisord"]
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord/supervisord.conf"]
 EXPOSE 80
 VOLUME /config /data
