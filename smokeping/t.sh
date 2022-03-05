@@ -1,9 +1,10 @@
-/usr/bin/docker run \
-  --entrypoint=/bin/bash --rm -it \
+docker run -d \
+  --name=ckolos-smokeping \
   -e PUID=1000 \
   -e PGID=1000 \
-  -p 8001:81 \
-  --sysctl net.ipv6.conf.all.disable_ipv6=0 \
-  -v /media/esata/docker/smokeping/config:/config \
-  -v /media/esata/docker/smokeping/data:/data \
-  ckolos/smokeping:test
+  -e TZ=America/Chicago \
+  -p 8889:80 \
+  -v /home/ckolos/testing/smokeping/config:/config \
+  -v /home/ckolos/testing/smokeping/data:/data \
+  --restart unless-stopped \
+ckolos/cksmoke:latest
