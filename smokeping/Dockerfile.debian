@@ -1,0 +1,54 @@
+FROM debian:bullseye
+RUN \
+  echo en_US.UTF-8 UTF-8 > /etc/locale.gen
+
+RUN \
+  echo "**** install packages ****" && \
+  apt-get update && \
+  apt install --no-install-recommends -y smokeping curl fping
+
+RUN \
+  apt install --no-install-recommends -y \
+  nginx \
+  uwsgi \
+  supervisor \
+	bc \
+	dnsutils \
+	fonts-noto-cjk \
+	less \
+	libidn11 \
+	libpopt0 \
+	openssh-client \
+	procps \
+	ssmtp \
+	sudo \
+	tcptraceroute \
+	fonts-dejavu-core \
+	fonts-dejavu-extra \
+	traceroute \
+	vim-tiny
+
+COPY root/ /
+
+RUN dpkg -i /tmp/echoping_6.0.2-10_amd64.deb && \
+    rm /tmp/echoping_6.0.2-10_amd64.deb
+
+RUN \
+  echo "**** give setuid access to traceroute & tcptraceroute ****" && \
+  chmod a+s /usr/bin/traceroute && \
+  chmod a+s /usr/bin/tcptraceroute && \
+  echo "**** fix path to cropper.js ****" && \
+  sed -i 's#src="/cropper/#/src="cropper/#' /etc/smokeping/basepage.html && \
+  echo "**** install tcping script ****" && \
+  install -m755 -D /defaults/tcpping /usr/bin/ && \
+  rm /etc/nginx/sites-enabled/default && \
+  rm /etc/nginx/sites-available/default && \
+  rm -rf /etc/supervisor && \
+  ln -s  /var/cache/smokeping /usr/share/smokeping/www/cache && \
+  apt-get clean
+
+    # mkdir /etc/nginx/ssl && \
+    # openssl req -subj "/commonName=smokeping.ckolos.net/" -x509 -nodes -days 730 -newkey rsa:2048 -keyout /etc/nginx/ssl/nginx.key -out /etc/nginx/ssl/nginx.crt && \
+CMD ["/usr/bin/supervisord", "-c", "/etc/supervisord/supervisord.conf"]
+EXPOSE 80
+VOLUME /config /data
